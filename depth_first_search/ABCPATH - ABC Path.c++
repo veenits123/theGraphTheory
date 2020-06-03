@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstring>
-#include <queue>
 
 using namespace std;
 
@@ -12,7 +11,6 @@ using namespace std;
 
 const int N = 5e1 + 5;
 char Graph[N][N];
-int vis[N][N];
 int dis[N][N];
 int ans = 0;
 int n, m;
@@ -24,27 +22,15 @@ bool is_valid(int x, int y) {
 	return (x >= 1 && x <= n && y >= 1 && y <= m);
 }
 
-queue <P> q;
-
-void bfs() {
-
-	while (!q.empty()) {
-		P temp = q.front();
-		q.pop();
-		for (int i = 1; i <= 8; i++) {
-			int x = temp.F + row[i];
-			int y = temp.S + col[i];
-			if (!vis[x][y] && is_valid(x, y) && Graph[x][y] == Graph[temp.F][temp.S] + 1) {
-				dis[x][y] = dis[temp.F][temp.S] + 1;
-				vis[x][y] = 1;
-				q.push({x, y});
-				if (dis[x][y] > ans) {
-					ans = dis[x][y];
-				}
-			}
+void dfs(int r, int c, int d) {
+	dis[r][c] = d + 1;
+	for (int i = 1; i <= 8; i++) {
+		int x = r + row[i];
+		int y = c + col[i];
+		if (is_valid(x, y) && Graph[x][y] == Graph[r][c] + 1 && dis[x][y] < dis[r][c] + 1) {
+			dfs(x, y, dis[r][c]);
 		}
 	}
-
 }
 
 int32_t main() {
@@ -73,19 +59,21 @@ int32_t main() {
 			}
 		}
 		ans = 0;
-		memset(vis, 0, sizeof(vis));
 		memset(dis, 0, sizeof(dis));
 
 		for (int i = 1; i <= n; i++) {
 			for (int j = 1; j <= m; j++) {
-				if (Graph[i][j] == 'A') {
-					q.push({i, j});
-					dis[i][j] = 1;
-					ans = 1;
+				if (Graph[i][j] == 'A' && dis[i][j] == 0)
+					dfs(i, j, 0);
+			}
+		}
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= m; j++) {
+				if (dis[i][j] > ans) {
+					ans = dis[i][j];
 				}
 			}
 		}
-		bfs();
 		cout << ans << endl;
 	}
 

@@ -1,5 +1,2 @@
-NO WAY
-NO WAY
-NO WAY
-NO WAY
-NO WAY
+Case 1: 4
+Case 2: 4

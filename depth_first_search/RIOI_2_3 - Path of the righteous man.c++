@@ -26,9 +26,9 @@ bool is_valid(int i, int j) {
 
 bool bfs(int x1, int y1, int ex, int ey) {
 
-	// if (!key[Graph[x1][y1]] || !key[Graph[ex][ey]]) {
-	// 	return false;
-	// }
+	if (!key[Graph[x1][y1]] || !key[Graph[ex][ey]]) {
+		return false;
+	}
 
 	queue <P> q;
 	q.push({x1, y1});

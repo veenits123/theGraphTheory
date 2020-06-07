@@ -17,6 +17,7 @@ int n, m;
 
 void dfs(int src) {
 	vis[src] = 1;
+	//cout<<src<<" ";
 	for (auto to : Graph[src]) {
 		if (!vis[to]) {
 			dfs(to);
@@ -25,6 +26,7 @@ void dfs(int src) {
 		cycle[src] |= cycle[to];
 		cycle[src].set(to);
 	}
+	//cout<<endl;
 }
 
 void solve() {
@@ -34,11 +36,13 @@ void solve() {
 	while (m--) {
 		int u, v; cin >> u >> v;
 
-		if (cycle[v][u] || u == v)
+		if (cycle[v][u] || u == v) {
 			cout << u << " " << v << endl;
+		}
 
-		else if (cycle[u][v])
+		else if (cycle[u][v]) {
 			continue;
+		}
 
 		else {
 			Graph[u].pb(v);
@@ -48,6 +52,7 @@ void solve() {
 				if (!vis[i])
 					dfs(i);
 			}
+
 		}
 	}
 

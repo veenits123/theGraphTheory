@@ -44,15 +44,15 @@ void solve() {
 
 	dfs(1, 0, 0);
 
-	//cout << day << endl;
+	cout << day << endl;
 
 	for (int i = 1; i <= day; i++) {
-		//cout << ans[i].size() << " ";
+		cout << ans[i].size() << " ";
 
 		for (auto x : ans[i])
-			//cout << x << " ";
+			cout << x << " ";
 
-			cout << endl;
+		cout << endl;
 	}
 
 	return ;

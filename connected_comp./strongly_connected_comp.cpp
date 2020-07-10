@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <cstring>
+#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -18,35 +20,31 @@ using namespace std;
 
 const int N = 1e5 + 5;
 vector <int> Graph[N];
+vector <int> transpose[N];
 int vis[N];
-int timer;
-int entry[N];
-int low[N];
+vector <int> out;
+vector <int> component;
 int n, m;
 
-void dfs(int src, int par) {
+void dfs1(int src) {
 	vis[src] = 1;
-	entry[src] = low[src] = timer;
-	timer++;
+	//cout<<src<<" ";
 	for (auto to : Graph[src]) {
-		if (to == par)
-			continue;
-		if (vis[to])
-			low[src] = min(low[src], entry[to]);
-		else {
-			dfs(to, src);
-			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
-			}
-			low[src] = min(low[src], low[to]);
+		if (!vis[to]) {
+			vis[to] = 1;
+			dfs1(to);
 		}
 	}
+	out.pb(src);
 }
 
-void find_bridges() {
-	for (int i = 0; i < n; i++) {
-		if (!vis[i])
-			dfs(i, -1);
+void dfs2(int src) {
+	vis[src] = 1;
+	component.pb(src);
+	for (auto to : transpose[src]) {
+		if (!vis[to]) {
+			dfs2(to);
+		}
 	}
 }
 
@@ -55,9 +53,32 @@ void solve() {
 	while (m--) {
 		int u, v; cin >> u >> v;
 		Graph[u].pb(v);
-		Graph[v].pb(u);
+		transpose[v].pb(u);
 	}
-	find_bridges();
+	for (int i = 0; i < n; i++) {
+		if (!vis[i]) {
+			dfs1(i);
+		}
+	}
+	// for (auto x : out)
+	// 	cout << x << " ";
+	// cout << endl;
+
+	reverse(out.begin(), out.end());
+
+	memset(vis, 0, sizeof(vis));
+
+	for (int i = 0; i < n; i++) {
+		int cur = out[i];
+		if (!vis[cur]) {
+			dfs2(cur);
+
+			for (auto x : component)
+				cout << x << " ";
+			cout << endl;
+		}
+		component.clear();
+	}
 
 	return ;
 }

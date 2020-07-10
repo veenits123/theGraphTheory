@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -16,13 +15,14 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e5 + 5;
+const int N = 7e2 + 5;
 vector <int> Graph[N];
 int vis[N];
 int timer;
 int entry[N];
 int low[N];
 int n, m;
+vector <P> ans;
 
 void dfs(int src, int par) {
 	vis[src] = 1;
@@ -36,28 +36,45 @@ void dfs(int src, int par) {
 		else {
 			dfs(to, src);
 			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
+				//cout << "B " << src << " -> " << to << endl;
+				if (to > src) {
+					ans.pb({src, to});
+				}
+				else {
+					ans.pb({to, src});
+				}
 			}
 			low[src] = min(low[src], low[to]);
 		}
 	}
 }
 
-void find_bridges() {
-	for (int i = 0; i < n; i++) {
-		if (!vis[i])
-			dfs(i, -1);
-	}
-}
-
 void solve() {
+
+	memset(Graph, 0, sizeof(Graph));
+	memset(vis, 0, sizeof(vis));
+	memset(entry, 0, sizeof(entry));
+	memset(low, 0, sizeof(low));
+	timer = 0;
+	ans.clear();
+
 	cin >> n >> m;
 	while (m--) {
 		int u, v; cin >> u >> v;
 		Graph[u].pb(v);
 		Graph[v].pb(u);
 	}
-	find_bridges();
+	dfs(1, -1);
+	if (ans.size()) {
+		cout << ans.size() << endl;
+		sort(ans.begin(), ans.end());
+		for (auto x : ans) {
+			cout << x.F << " " << x.S << endl;
+		}
+	}
+	else {
+		cout << "Sin bloqueos" << endl;
+	}
 
 	return ;
 }
@@ -78,8 +95,11 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; int tc = t;
+	while (t--) {
+		cout << "Caso #" << tc - t << endl;
+		solve();
+	}
 
 	return 0;
 }

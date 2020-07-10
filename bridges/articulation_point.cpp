@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <set>
+#include <cstring>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -19,45 +21,60 @@ using namespace std;
 const int N = 1e5 + 5;
 vector <int> Graph[N];
 int vis[N];
-int timer;
 int entry[N];
 int low[N];
+int timer;
+set <int> ans;
 int n, m;
 
 void dfs(int src, int par) {
 	vis[src] = 1;
-	entry[src] = low[src] = timer;
-	timer++;
+	int children = 0;
+	entry[src] = low[src] = timer++;
 	for (auto to : Graph[src]) {
 		if (to == par)
 			continue;
-		if (vis[to])
+		if (vis[to]) {
 			low[src] = min(low[src], entry[to]);
+		}
 		else {
 			dfs(to, src);
-			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
-			}
 			low[src] = min(low[src], low[to]);
+			if (low[to] >= entry[src] && par != -1) {
+				ans.insert(src);
+			}
+			children++;
+		}
+	}
+	if (par == -1 && children > 1) {
+		ans.insert(src);
+	}
+}
+
+void articulations(int n) {
+	for (int i = 0; i < n; i++) {
+		if (!vis[i]) {
+			dfs(i, -1);
+			//cout << ans.size() << endl;
+			for (auto x : ans)
+				cout << x << endl;
 		}
 	}
 }
 
-void find_bridges() {
-	for (int i = 0; i < n; i++) {
-		if (!vis[i])
-			dfs(i, -1);
-	}
-}
-
 void solve() {
+
 	cin >> n >> m;
 	while (m--) {
 		int u, v; cin >> u >> v;
 		Graph[u].pb(v);
 		Graph[v].pb(u);
 	}
-	find_bridges();
+	//articulations(n);
+	dfs(1, -1);
+	for (auto x : ans)
+		cout << x << endl;
+
 
 	return ;
 }

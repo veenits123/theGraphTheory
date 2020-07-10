@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -20,33 +19,40 @@ const int N = 1e5 + 5;
 vector <int> Graph[N];
 int vis[N];
 int timer;
-int entry[N];
 int low[N];
+int entry[N];
 int n, m;
+bool flag = true;
+set <P> ans;
 
 void dfs(int src, int par) {
 	vis[src] = 1;
-	entry[src] = low[src] = timer;
+	low[src] = entry[src] = timer;
 	timer++;
 	for (auto to : Graph[src]) {
 		if (to == par)
 			continue;
-		if (vis[to])
+		if (vis[to]) {
 			low[src] = min(low[src], entry[to]);
+			
+			//method-I;
+			// if (ans.count({to, src}) || ans.count({src, to}))
+			// 	continue;
+			// ans.insert({src, to});
+
+			//method-II;
+			if (entry[src] > entry[to])
+				ans.insert({src, to});
+		}
 		else {
+			ans.insert({src, to});
 			dfs(to, src);
 			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
+				flag = false;
+				return ;
 			}
 			low[src] = min(low[src], low[to]);
 		}
-	}
-}
-
-void find_bridges() {
-	for (int i = 0; i < n; i++) {
-		if (!vis[i])
-			dfs(i, -1);
 	}
 }
 
@@ -57,8 +63,15 @@ void solve() {
 		Graph[u].pb(v);
 		Graph[v].pb(u);
 	}
-	find_bridges();
-
+	dfs(1, -1);
+	if (flag) {
+		for (auto x : ans) {
+			cout << x.F << " " << x.S << endl;
+		}
+	}
+	else {
+		cout << 0 << endl;
+	}
 	return ;
 }
 

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <cstring>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -16,38 +18,27 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e5 + 5;
-vector <int> Graph[N];
+const int N = 2e1 + 5;
+vector <int> Graph[N], transpose[N];
 int vis[N];
-int timer;
-int entry[N];
-int low[N];
+vector <int> out;
+vector <int> comp;
 int n, m;
 
-void dfs(int src, int par) {
+void dfs(int src) {
 	vis[src] = 1;
-	entry[src] = low[src] = timer;
-	timer++;
-	for (auto to : Graph[src]) {
-		if (to == par)
-			continue;
-		if (vis[to])
-			low[src] = min(low[src], entry[to]);
-		else {
-			dfs(to, src);
-			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
-			}
-			low[src] = min(low[src], low[to]);
-		}
-	}
+	for (auto to : Graph[src])
+		if (!vis[to])
+			dfs(to);
+	out.pb(src);
 }
 
-void find_bridges() {
-	for (int i = 0; i < n; i++) {
-		if (!vis[i])
-			dfs(i, -1);
-	}
+void dfs2(int src) {
+	vis[src] = 1;
+	comp.pb(src);
+	for (auto to : transpose[src])
+		if (!vis[to])
+			dfs2(to);
 }
 
 void solve() {
@@ -55,9 +46,30 @@ void solve() {
 	while (m--) {
 		int u, v; cin >> u >> v;
 		Graph[u].pb(v);
-		Graph[v].pb(u);
+		transpose[v].pb(u);
 	}
-	find_bridges();
+	for (int i = 1; i <= n; i++) {
+		if (!vis[i])
+			dfs(i);
+	}
+	memset(vis, 0, sizeof(vis));
+	reverse(out.begin(), out.end());
+	int odd = 0, even = 0;
+	for (auto x : out) {
+		if (!vis[x]) {
+			dfs2(x);
+			// for (auto x : comp)
+			// 	cout << x << " ";
+			// cout << endl;
+			int sz = comp.size();
+			if (sz % 2)
+				odd += sz;
+			else
+				even += sz;
+			comp.clear();
+		}
+	}
+	cout << odd - even << endl;
 
 	return ;
 }

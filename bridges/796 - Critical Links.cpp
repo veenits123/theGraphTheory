@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -23,6 +22,7 @@ int timer;
 int entry[N];
 int low[N];
 int n, m;
+set <P> ans;
 
 void dfs(int src, int par) {
 	vis[src] = 1;
@@ -36,11 +36,13 @@ void dfs(int src, int par) {
 		else {
 			dfs(to, src);
 			if (low[to] > entry[src]) {
-				cout << "B " << src << " -> " << to << endl;
+				ans.insert({src, to});
+				//cout << "B " << src << " -> " << to << endl;
 			}
 			low[src] = min(low[src], low[to]);
 		}
 	}
+	return ;
 }
 
 void find_bridges() {
@@ -48,16 +50,36 @@ void find_bridges() {
 		if (!vis[i])
 			dfs(i, -1);
 	}
+	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	while (m--) {
-		int u, v; cin >> u >> v;
-		Graph[u].pb(v);
-		Graph[v].pb(u);
+	while (cin >> n) {
+
+		memset(vis, 0, sizeof(vis));
+		memset(low, 0, sizeof(low));
+		memset(entry, 0, sizeof(entry));
+		memset(Graph, 0, sizeof(Graph));
+		timer = 0;
+		ans.clear();
+
+		for (int i = 0; i < n; i++) {
+			int x; cin >> x;
+			string s; cin >> s;
+			int t = s[1] - '0';
+			while (t--) {
+				int u; cin >> u;
+				Graph[x].pb(u);
+			}
+		}
+		find_bridges();
+		cout << ans.size() << " critical links" << endl;
+		//sort(ans.begin(), ans.end());
+		for (auto x : ans) {
+			cout << x.F << " - " << x.S << endl;
+		}
+		cout << endl;
 	}
-	find_bridges();
 
 	return ;
 }

@@ -88,9 +88,9 @@ int32_t main() {
 		Graph[x].pb(y);
 		Graph[y].pb(x);
 	}
-	//bfs(1);
-	//shortest_path(5);
-	cout << connected_comp(n) << endl;
+	bfs(1);
+	shortest_path(5);
+	//cout << connected_comp(n) << endl;
 
 
 	return 0;

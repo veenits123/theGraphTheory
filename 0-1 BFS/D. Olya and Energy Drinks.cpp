@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <queue>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -16,40 +16,73 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int inf = 1e9;
-const int N = 1e4 + 5;
-vector <pair<P, int>> Graph;
-vector <int> dis(N, inf);
-int n, m;
+const int N = 1e3 + 5;
+char Graph[N][N];
+int vis[N][N];
+int n, m, k;
+int sx, sy, ex, ey;
 
-void bellman_ford(int src) {
-	dis[src] = 0;
-	for (;;) {
-		bool flag = false;
-		for (int j = 0; j < m; j++) {
-			int cost = Graph[j].S;
-			int par = Graph[j].F.F;
-			int child = Graph[j].F.S;
-			if (dis[child] > dis[par] + cost) {
-				dis[child] = dis[par] + cost;
-				flag = true;
+#define node pair<P,int>
+
+int row[5] = {0, 1, -1, 0, 0};
+int col[5] = {0, 0, 0, -1, 1};
+
+void bfs() {
+	queue <node> q;
+	q.push({{sx, sy}, 0});
+	vis[sx][sy] = 1;
+	while (!q.empty()) {
+		node temp = q.front();
+		q.pop();
+		for (int i = 1; i <= 4; i++) {
+			node cur = temp;
+			cur.S++;
+			//cout << cur.S << " " << i << endl;
+			int j = 1;
+			while (j <= k) {
+				cur.F.F += row[i];
+				cur.F.S += col[i];
+				j++;
+
+				if (cur.F.F > n || cur.F.F < 1 || cur.F.S > m || cur.F.S < 1 || vis[cur.F.F][cur.F.S])
+					continue;
+
+				if (Graph[cur.F.F][cur.F.S] == '#')
+					break;
+
+				if (cur.F.F == ex && cur.F.S == ey) {
+					cout << cur.S << endl;
+					return ;
+				}
+
+				q.push({{cur.F.F, cur.F.S}, cur.S});
+				vis[cur.F.F][cur.F.S] = 1;
+
 			}
 		}
-		if (!flag)
-			break;
 	}
+	cout << -1 << endl;
+	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 0; i < m; i++) { 
-		int u, v, w; cin >> u >> v >> w;
-		Graph.pb({{u, v}, w});
-	}
-	bellman_ford(1);
+	cin >> n >> m >> k;
 	for (int i = 1; i <= n; i++) {
-		cout << dis[i] << " ";
+		for (int j = 1; j <= m; j++) {
+			cin >> Graph[i][j];
+		}
 	}
+	// for (int i = 1; i <= n; i++) {
+	// 	for (int j = 1; j <= m; j++) {
+	// 		cout<<Graph[i][j];
+	// 	}
+	// }
+	cin >> sx >> sy >> ex >> ey;
+	if (sx == ex && sy == ey) {
+		cout << 0 << endl;
+		return ;
+	}
+	bfs();
 
 	return ;
 }

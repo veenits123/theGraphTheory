@@ -1,5 +1,6 @@
 #include <iostream>
-#include <vector>
+#include <deque>
+#include <cstring>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -16,40 +17,74 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int inf = 1e9;
-const int N = 1e4 + 5;
-vector <pair<P, int>> Graph;
-vector <int> dis(N, inf);
+const int N = 1e3 + 5;
+char Graph[N][N];
+int dis[4][N][N];
 int n, m;
 
-void bellman_ford(int src) {
-	dis[src] = 0;
-	for (;;) {
-		bool flag = false;
-		for (int j = 0; j < m; j++) {
-			int cost = Graph[j].S;
-			int par = Graph[j].F.F;
-			int child = Graph[j].F.S;
-			if (dis[child] > dis[par] + cost) {
-				dis[child] = dis[par] + cost;
-				flag = true;
+int row[5] = {0, -1, 1, 0, 0};
+int col[5] = {0, 0, 0, 1, -1};
+
+bool is_valid(int i, int j) {
+	return (i >= 1 && i <= n && j >= 1 && j <= m && Graph[i][j] != '#');
+}
+
+void bfs() {
+	deque <P> q;
+	for (int c = '1'; c <= '3'; c++) {
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= m; j++) {
+				if (Graph[i][j] == c) {
+					q.push_back({i, j});
+					dis[c - '0'][i][j] = 0;
+				}
 			}
 		}
-		if (!flag)
-			break;
+		while (!q.empty()) {
+			int tx = q.front().F;
+			int ty = q.front().S;
+			q.pop_front();
+			for (int i = 1; i <= 4; i++) {
+				int x = tx + row[i];
+				int y = ty + col[i];
+				if (is_valid(x, y)) {
+					int road = dis[c - '0'][tx][ty] + (Graph[x][y] == '.');
+					if (dis[c - '0'][x][y] > road || dis[c - '0'][x][y] == -1) {
+						dis[c - '0'][x][y] = road;
+						if (Graph[x][y] == '.')
+							q.push_back({x, y});
+						else
+							q.push_front({x, y});
+					}
+				}
+			}
+		}
 	}
 }
 
 void solve() {
 	cin >> n >> m;
-	for (int i = 0; i < m; i++) { 
-		int u, v, w; cin >> u >> v >> w;
-		Graph.pb({{u, v}, w});
-	}
-	bellman_ford(1);
 	for (int i = 1; i <= n; i++) {
-		cout << dis[i] << " ";
+		for (int j = 1; j <= m; j++) {
+			cin >> Graph[i][j];
+		}
 	}
+	memset(dis, -1, sizeof(dis));
+	bfs();
+	int ans = -1;
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= m; j++) {
+			if (dis[1][i][j] != -1 && dis[2][i][j] != -1 && dis[3][i][j] != -1) {
+				int temp = dis[1][i][j] + dis[2][i][j]
+				           + dis[3][i][j] - 2 * (Graph[i][j] == '.');
+				if (ans > temp || ans == -1) {
+					ans = temp;
+					//cout << ans << endl;
+				}
+			}
+		}
+	}
+	cout << ans << endl;
 
 	return ;
 }

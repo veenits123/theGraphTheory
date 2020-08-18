@@ -1,4 +1,5 @@
 #include <iostream>
+#include <deque>
 #include <vector>
 using namespace std;
 
@@ -16,40 +17,65 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int inf = 1e9;
-const int N = 1e4 + 5;
-vector <pair<P, int>> Graph;
-vector <int> dis(N, inf);
-int n, m;
+class Solution {
+public:
+	bool is_valid(int i, int j, int m, int n) {
+		return (i >= 0 && i < m && j >= 0 && j < n);
+	}
 
-void bellman_ford(int src) {
-	dis[src] = 0;
-	for (;;) {
-		bool flag = false;
-		for (int j = 0; j < m; j++) {
-			int cost = Graph[j].S;
-			int par = Graph[j].F.F;
-			int child = Graph[j].F.S;
-			if (dis[child] > dis[par] + cost) {
-				dis[child] = dis[par] + cost;
-				flag = true;
+	pair<int, int> same(int i, int j, int val) {
+		if (val == 1)
+			return make_pair(i, j + 1);
+		if (val == 2)
+			return make_pair(i, j - 1);
+		if (val == 3)
+			return make_pair(i + 1, j);
+		return make_pair(i - 1, j);
+	}
+
+	int minCost(vector<vector<int>>& Graph) {
+		int m = Graph.size();
+		int n = Graph[0].size();
+		vector<vector<int>> dis(m, vector<int>(n, 1e9));
+		deque <pair<int, int>> q;
+		q.push_front({0, 0});
+		dis[0][0] = 0;
+		while (!q.empty()) {
+			int tx = q.front().first;
+			int ty = q.front().second;
+			q.pop_front();
+			for (int i = 1; i <= 4; i++) {
+				pair<int, int> temp = same(tx, ty, i);
+				int r = temp.first;
+				int c = temp.second;
+				//cout << r << " " << c << endl;
+				int w = (Graph[tx][ty] != i ? 1 : 0);
+				if (is_valid(r, c, m, n)) {
+					if (dis[r][c] > w + dis[tx][ty]) {
+						dis[r][c] = w + dis[tx][ty];
+						//cout << (Graph[r][c] == i) << endl;
+						if (w == 0)
+							q.push_front({r, c});
+						else
+							q.push_back({r, c});
+					}
+				}
 			}
 		}
-		if (!flag)
-			break;
+		return dis[m - 1][n - 1];
 	}
-}
+};
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 0; i < m; i++) { 
-		int u, v, w; cin >> u >> v >> w;
-		Graph.pb({{u, v}, w});
+	int m, n; cin >> m >> n;
+	vector<vector<int>> gr(m, vector<int>(n));
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> gr[i][j];
+		}
 	}
-	bellman_ford(1);
-	for (int i = 1; i <= n; i++) {
-		cout << dis[i] << " ";
-	}
+	int ans = Solution().minCost(gr);
+	cout << ans << endl;
 
 	return ;
 }

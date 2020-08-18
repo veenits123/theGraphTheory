@@ -1,4 +1,5 @@
 #include <iostream>
+#include <deque>
 #include <vector>
 using namespace std;
 
@@ -16,40 +17,75 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int inf = 1e9;
-const int N = 1e4 + 5;
-vector <pair<P, int>> Graph;
-vector <int> dis(N, inf);
+const int N = 2e3 + 5;
+char Graph[N][N];
+int disl[N][N], disr[N][N];
+int vis[N][N];
 int n, m;
+int sx, sy;
+int l, r;
+int ans;
 
-void bellman_ford(int src) {
-	dis[src] = 0;
-	for (;;) {
-		bool flag = false;
-		for (int j = 0; j < m; j++) {
-			int cost = Graph[j].S;
-			int par = Graph[j].F.F;
-			int child = Graph[j].F.S;
-			if (dis[child] > dis[par] + cost) {
-				dis[child] = dis[par] + cost;
-				flag = true;
+typedef vector <int> vi;
+
+int row[5] = {0, 0, 0, -1, 1};
+int col[5] = {0, -1, 1, 0, 0};//(0,-1)->left; (0,1)->right;
+
+
+
+bool is_valid(int i, int j) {
+	return (i >= 1 && i <= n && j >= 1 && j <= m && Graph[i][j] != '*');
+}
+
+void bfs(int sx, int sy) {
+
+	deque <P> q;
+	q.push_front({sx, sy});
+	vis[sx][sy] = 1;
+
+	while (!q.empty()) {
+		P temp = q.front();
+		q.pop_front();
+		int tx = temp.F;
+		int ty = temp.S;
+
+		if (disl[tx][ty] <= l && disr[tx][ty] <= r)
+			ans++;
+		//cout << ans;
+		for (int i = 1; i <= 4; i++) {
+			int r = row[i] + tx;
+			int c = col[i] + ty;
+
+			if (!vis[r][c] && is_valid(r, c)) {
+				vis[r][c] = 1;
+
+				disl[r][c] = disl[tx][ty] + (i == 1);
+				disr[r][c] = disr[tx][ty] + (i == 2);
+
+				if (i == 1 || i == 2)
+					q.push_back({r, c});
+				else
+					q.push_front({r, c});
 			}
 		}
-		if (!flag)
-			break;
 	}
 }
 
 void solve() {
 	cin >> n >> m;
-	for (int i = 0; i < m; i++) { 
-		int u, v, w; cin >> u >> v >> w;
-		Graph.pb({{u, v}, w});
-	}
-	bellman_ford(1);
+	cin >> sx >> sy;
+	cin >> l >> r;
 	for (int i = 1; i <= n; i++) {
-		cout << dis[i] << " ";
+		for (int j = 1; j <= m; j++) {
+			cin >> Graph[i][j];
+		}
 	}
+	if (Graph[sx][sy] == '*') {
+		cout << 0 << endl;
+		return ;
+	}
+	bfs(sx, sy);
+	cout << ans << endl;
 
 	return ;
 }

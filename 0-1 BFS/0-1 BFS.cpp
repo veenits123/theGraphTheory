@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -16,40 +15,41 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int inf = 1e9;
-const int N = 1e4 + 5;
-vector <pair<P, int>> Graph;
-vector <int> dis(N, inf);
+const int N = 1e5 + 5;
+vector <P> Graph[N];
+vector <int> dis;
+typedef vector <int> vi;
 int n, m;
 
-void bellman_ford(int src) {
+void bfs(int src) {
 	dis[src] = 0;
-	for (;;) {
-		bool flag = false;
-		for (int j = 0; j < m; j++) {
-			int cost = Graph[j].S;
-			int par = Graph[j].F.F;
-			int child = Graph[j].F.S;
-			if (dis[child] > dis[par] + cost) {
-				dis[child] = dis[par] + cost;
-				flag = true;
+	deque <int> q;
+	q.push_front(src);
+	while (!q.empty()) {
+		int temp = q.front();
+		q.pop_front();
+		for (auto to : Graph[temp]) {
+			if (dis[to.F] > dis[temp] + to.S) {
+				dis[to.F] = dis[temp] + to.S;
+				if (to.S == 0)
+					q.push_front(to.F);
+				else
+					q.push_back(to.F);
 			}
 		}
-		if (!flag)
-			break;
 	}
 }
 
 void solve() {
 	cin >> n >> m;
-	for (int i = 0; i < m; i++) { 
+	for (int i = 0; i < m; i++) {
 		int u, v, w; cin >> u >> v >> w;
-		Graph.pb({{u, v}, w});
+		Graph[u].pb({v, w});
+		Graph[v].pb({u, w});
 	}
-	bellman_ford(1);
-	for (int i = 1; i <= n; i++) {
-		cout << dis[i] << " ";
-	}
+	dis = vi(N, 1e9);
+	bfs(1);
+	cout << dis[n];
 
 	return ;
 }

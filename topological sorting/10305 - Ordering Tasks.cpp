@@ -17,66 +17,50 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 1e5 + 5;
+vector <int> Graph[N];
+vector <int> vis;
+vector <int> ans;
 int n, m;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
-			}
-		}
+typedef vector <int> vi;
+
+void dfs(int src) {
+	vis[src] = 1;
+	for (auto to : Graph[src]) {
+		if (!vis[to])
+			dfs(to);
 	}
+	ans.pb(src);
 }
 
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
+void topological_sort() {
+	ans.clear();
+	vis = vi(N, 0);
+
+	for (int i = 1; i <= n; i++) {
+		if (!vis[i])
+			dfs(i);
 	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
+	reverse(ans.begin(), ans.end());
+	for (auto x : ans)
 		cout << x << " ";
 	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+
+	while (true) {
+		cin >> n >> m;
+		if (n == 0 && m == 0)
+			return ;
+		while (m--) {
+			int u, v; cin >> u >> v;
+			Graph[u].pb(v);
+			//Graph[v].pb(u);
 		}
+		topological_sort();
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
 
 	return ;
 }

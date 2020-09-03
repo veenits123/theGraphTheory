@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +16,53 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
+const int N = 3e2 + 5;
 int dis[N][N];
-int par[N][N];
-int n, m;
+vector <pair<P, int>> add;
+int n, q;
+int ans[N];
+const int inf = 1e9;
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
+	for (int k = 1; k <= q; k++) {
 		for (int i = 1; i <= n; i++) {
 			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+				dis[i][j] = min(dis[i][j], min(dis[i][add[k].F.F] + add[k].S + dis[add[k].F.S][j],//i->a->b->j;
+				                               dis[i][add[k].F.S] + add[k].S + dis[add[k].F.F][j]));//i->b->a->j;
+			}
+		}
+		for (int ii = 1; ii <= n; ii++) {
+			for (int jj = 1; jj <= n; jj++) {
+				ans[k] += dis[ii][jj];
 			}
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
+	cin >> n;
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+			cin >> dis[i][j];
 		}
+	}
+	cin >> q;
+
+	add.pb({{0, 0}, 0});
+	for (int i = 1; i <= q; i++) {
+		int u, v, w; cin >> u >> v >> w;
+		add.pb({{u, v}, w});
 	}
 	floyd_warshall();
 	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
+	// 	for (int j = 1; j <= n; j++) {
+	// 		cout << dis[i][j] << " ";
+	// 	}
+	// 	cout << endl;
 	// }
-	shortest_path(1, 2);
+	for (int i = 1; i <= q; i++) {
+		cout << ans[i] / 2 << " ";
+	}
 
 	return ;
 }

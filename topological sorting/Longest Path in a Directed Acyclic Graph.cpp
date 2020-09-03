@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <algorithm>
 using namespace std;
 
@@ -17,66 +18,86 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 1e5 + 5;
+vector <int> Graph[N];
+vector <int> ans;
+vector <int> indeg;
+vector <int> dis, par;
 int n, m;
+const int minf = -1e9;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
-			}
+typedef vector <int> vi;
+
+void kahn(int no) {
+	queue <int> q;
+	for (int i = 1; i <= n; i++) {
+		if (indeg[i] == 0)//starting node;
+			q.push(i);
+	}
+	while (!q.empty()) {
+		int temp = q.front();
+		q.pop();
+		ans.pb(temp);//adding to topo-sort array i.e. ans;
+		for (auto to : Graph[temp]) {
+			indeg[to]--;
+			if (indeg[to] == 0)
+				q.push(to);
 		}
 	}
 }
 
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
+void longest_path(int src) {
+	dis[src] = 0;
+	for (auto x : ans) {
+		for (auto to : Graph[x]) {
+			if (dis[x] != minf)
+				if (dis[to] < dis[x] + 1) {
+					dis[to] = dis[x] + 1;
+					par[to] = x;
+				}
+		}
 	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
+	ans.clear();
+	indeg = vi(N, 0);
+	dis = vi(N, minf);
+	par = vi(N, -1);
+
 	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
+	while (m--) {
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
+		//Graph[v].pb(u);
+		indeg[v]++;
 	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+	kahn(n);
+
+	// for (auto x : ans)
+	// 	cout << x << " ";
+
+	longest_path(1);
+	if (dis[n] != minf) {
+		cout << dis[n] + 1 << endl;
+		vector <int> path;
+		for (int i = n; i != -1; i = par[i]) {
+			path.pb(i);
 		}
+		reverse(path.begin(), path.end());
+		for (auto x : path)
+			cout << x << " ";
+		cout << endl;
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
+	else
+		cout << "IMPOSSIBLE" << endl;
+
+	// for (int i = 1; i <= n; i++)
+	// 	cout << dis[i] << " ";
+	// cout << endl;
+	// for (int i = n; i != -1; i = par[i]) {
+	// 	cout << i << " ";
 	// }
-	shortest_path(1, 2);
 
 	return ;
 }

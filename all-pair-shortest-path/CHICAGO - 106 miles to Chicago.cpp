@@ -1,6 +1,5 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <iomanip>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -13,70 +12,52 @@ using namespace std;
 #define P pair<int,int>
 #define pb push_back
 #define endl '\n'
+#define sp(x,y) fixed<<setprecision(y)<<x
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 1e2 + 5;
+double dis[N][N];
 int n, m;
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
+	for (int k = 1; k <= n; k++) {
 		for (int i = 1; i <= n; i++) {
 			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+				dis[i][j] = max(dis[i][j], dis[i][k] * dis[k][j]);
 			}
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
+	while (true) {
+		cin >> n;
+		if (!n)
+			return ;
+		cin >> m;
+		for (int i = 0; i <= n; i++) {
+			for (int j = 0; j <= n; j++) {
+				dis[i][j] = 0.0;
 			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
 		}
+		for (int i = 1; i <= m; i++) {
+			int u, v;
+			double w;
+			cin >> u >> v >> w;
+			dis[u][v] = w / 100.0;
+			dis[v][u] = w / 100.0;
+		}
+		floyd_warshall();
+		// for (int i = 1; i <= n; i++) {
+		// 	for (int j = 1; j <= n; j++) {
+		// 		cout << dis[i][j] << " ";
+		// 	}
+		// 	cout << endl;
+		// }
+		cout << sp(dis[1][n] * 100.0, 6) << " percent" << endl;
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
 
 	return ;
 }

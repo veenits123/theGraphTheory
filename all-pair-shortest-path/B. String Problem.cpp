@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +15,74 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
+int dis[30][30];
+string s, t;
+int n;
 const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
-int n, m;
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+	for (int k = 0; k < 30; k++) {
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 30; j++) {
+				dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
 			}
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
+	cin >> s;
+	cin >> t;
+	cin >> n;
+	if (s.size() != t.size()) {
+		cout << -1 << endl;
+		return ;
 	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 30; j++) {
+			if (i == j)
 				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
+			else
 				dis[i][j] = inf;
 		}
 	}
+	for (int i = 1; i <= n; i++) {
+		char u, v;
+		int w;
+		cin >> u >> v >> w;
+		if (w > dis[(u - 'a')][(v - 'a')])
+			continue;
+		dis[(u - 'a')][(v - 'a')] = w;
+		//dis[(v - 'a')][(u - 'a')] = w;
+	}
 	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
+	// for (int i = 0; i < 30; i++) {
+	// 	for (int j = 0; j < 30; j++) {
+	// 		cout << dis[i][j] << " ";
+	// 	}
+	// 	cout << endl;
 	// }
-	shortest_path(1, 2);
+	int ans = 0;
+	string res = "";
+
+	for (int i = 0; i < s.size(); i++) {
+		int relax = 1e9;
+		char x;
+		for (int j = 0; j < 30; j++) {
+			if (relax > dis[s[i] - 'a'][j] + dis[t[i] - 'a'][j]) {
+				relax = dis[s[i] - 'a'][j] + dis[t[i] - 'a'][j];
+				x = j + 'a';
+			}
+		}
+		res += x;
+		ans += relax;
+	}
+	if (ans >= inf) {
+		cout << -1 << endl;
+		return ;
+	}
+	cout << ans << endl;
+	cout << res << endl;
 
 	return ;
 }

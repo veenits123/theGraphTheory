@@ -1,9 +1,7 @@
 #include <iostream>
-#include <vector>
 #include <queue>
-#include <cstring>
-#include <climits>
-#include <set>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -22,64 +20,49 @@ using namespace std;
 
 const int N = 1e5 + 5;
 vector <P> Graph[N];
-int vis[N];
-int dis[N];
+vector <int> dis;
 int n, m;
+int s, e;
+const int inf = 1e18;
 
-void dijkstra(int src) {
+typedef vector<int> vi;
 
-	dis[src] = 0;
-
-	priority_queue<P, vector<P>, greater<P> > q;
+void dijsktra(int src) {
+	priority_queue <P, vector<P>, greater<P>> q;
 	q.push({0, src});
-
+	dis[src] = 0;
 	while (!q.empty()) {
-
 		P temp = q.top();
 		q.pop();
-
-		int node = temp.S;
-		//cout << node << " ";
-
-		if (vis[node])
+		int prev = temp.S;
+		int prev_c = temp.F;
+		if (prev_c > dis[prev])
 			continue;
-		vis[node] = 1;
-
-		for (auto to : Graph[node]) {
-			int next = to.F;
+		for (auto to : Graph[prev]) {
 			int cost = to.S;
-			//cout << dis[next] << " ";
-
-			if (dis[next] > cost + dis[node]) {
-
-				dis[next] = cost + dis[node];
-				q.push({dis[next], next});
+			int cur = to.F;
+			if (dis[cur] > prev_c + cost) {
+				dis[cur] = prev_c + cost;
+				q.push({dis[cur], cur});
 			}
 		}
 	}
 }
 
 void solve() {
-	cin >> n >> m;
+	dis = vi(N, inf);
+
+	cin >> n >> m >> s >> e;
 	while (m--) {
 		int u, v, w; cin >> u >> v >> w;
 		Graph[u].pb({v, w});
 		Graph[v].pb({u, w});
 	}
-	//memset(dis, 1000, sizeof(dis));
-	for (int i = 0; i <= n; i++) {
-		dis[i] = 1e6;
-	}
-
-	dijkstra(1);
-
-	for (int i = 2; i <= n; i++) {
-		if (dis[i] != 1e6)
-			cout << dis[i] << " ";
-		else
-			cout << -1 << " ";
-	}
-
+	dijsktra(s);
+	if (dis[e] == inf)
+		cout << "NONE" << endl;
+	else
+		cout << dis[e] << endl;
 	return ;
 }
 
@@ -99,8 +82,8 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; while (t--)
+		solve();
 
 	return 0;
 }

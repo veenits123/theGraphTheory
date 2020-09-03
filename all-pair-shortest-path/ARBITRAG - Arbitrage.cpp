@@ -1,6 +1,5 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <map>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +16,62 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 4e1;
+double dis[N][N];
 int n, m;
+map <string, int> node;
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+	for (int k = 1; k < N; k++) {
+		for (int i = 1; i < N; i++) {
+			for (int j = 1; j < N; j++) {
+				dis[i][j] = max(dis[i][j], dis[i][k] * dis[k][j]);
 			}
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
+	int tc = 1;
+	while (true) {
+		cin >> n;
+		if (n == 0)
+			return ;
+
+		node.clear();
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				dis[i][j] = 0.0;
 			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
 		}
+
+		for (int i = 1; i <= n; i++) {
+			string s; cin >> s;
+			node[s] = i;
+		}
+		cin >> m;
+
+		for (int i = 1; i <= m; i++) {
+			string c1, c2;
+			double cost;
+			cin >> c1 >> cost >> c2;
+			dis[node[c1]][node[c2]] = cost;
+		}
+		floyd_warshall();
+
+		bool ans = false;
+
+		for (int i = 1; i <= n; i++) {
+			if (dis[i][i] > 1.0) {
+				ans = true;
+				break;
+			}
+		}
+		if (ans)
+			cout << "Case " << tc++ << ": Yes" << endl;
+		else
+			cout << "Case " << tc++ << ": No" << endl;
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
 
 	return ;
 }

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +15,36 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
+const int N = 1e2 + 5;
 int dis[N][N];
-int par[N][N];
-int n, m;
+int n;
+const int inf = 1e9;
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
+	for (int k = 1; k <= n; k++) {
 		for (int i = 1; i <= n; i++) {
 			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+				dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
 			}
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
+	cin >> n;
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+			cin >> dis[i][j];
 		}
 	}
 	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
+	int q; cin >> q;
+	int ans = 0;
+	while (q--) {
+		int u, v; cin >> u >> v;
+		ans += dis[u][v];
+	}
+	cout << ans << endl;
 
 	return ;
 }
@@ -97,8 +65,10 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	//int t;cin>>t;while(t--)
-	solve();
+	int t, tc; cin >> t; tc = t; while (t--) {
+		cout << "Case #" << tc - t << ": ";
+		solve();
+	}
 
 	return 0;
 }

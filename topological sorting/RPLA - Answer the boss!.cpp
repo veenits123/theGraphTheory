@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <algorithm>
 using namespace std;
 
@@ -17,66 +18,59 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 1e3 + 5;
+vector <int> Graph[N];
+vector <P> ans, topo;
+vector <int> indeg;
 int n, m;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
-			}
+typedef vector <int> vi;
+
+void kahn(int n) {
+	priority_queue <P, vector<P>, greater<P>> q;
+	for (int i = 0; i < n; i++) {
+		if (indeg[i] == 0)
+			q.push({i, 1});
+	}
+	while (!q.empty()) {
+		P cur = q.top();
+		q.pop();
+
+		int level = cur.S;
+		int node = cur.F;
+
+		topo.pb(cur);
+
+		for (auto to : Graph[node]) {
+			indeg[to]--;
+			if (indeg[to] == 0)
+				q.push({to, level + 1});
 		}
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
 }
 
 void solve() {
+	ans.clear();
+	indeg = vi(N, 0);
+	topo.clear();
+
 	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
+	for (int i = 0; i < n; i++)
+		Graph[i].clear();
+
+	while (m--) {
+		int u, v; cin >> u >> v;
+		Graph[v].pb(u);
+		indeg[u]++;
 	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
-		}
-	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
+	kahn(n);
+
+	for (auto x : topo)
+		ans.pb({x.S, x.F});
+	sort(ans.begin(), ans.end());
+
+	for (auto x : ans)
+		cout << x.F << " " << x.S << endl;
 
 	return ;
 }
@@ -97,8 +91,10 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	//int t;cin>>t;while(t--)
-	solve();
+	int t, tc; cin >> t; tc = t; while (t--) {
+		cout << "Scenario #" << tc - t << ":" << endl;
+		solve();
+	}
 
 	return 0;
 }

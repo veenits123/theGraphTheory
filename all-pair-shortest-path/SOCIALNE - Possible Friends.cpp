@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +15,50 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
-int n, m;
+const int N = 1e2 + 5;
+string Graph[N];
+string s;
+int n;
+int possible[N];
 
 void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
+	for (int k = 0; k < n; k++) {
+		for (int i = k + 1; i < n; i++) {
+			if (Graph[k][i] == 'N') {
+				for (int j = 0; j < n; j++) {
+					if (Graph[i][j] == 'Y' && Graph[k][j] == 'Y') {
+						//j is a common friend of i and k;
+						possible[k]++;
+						possible[i]++;
+						break;
+					}
 				}
 			}
 		}
 	}
 }
 
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
-}
-
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+	while (cin >> s) {
+		Graph[0] = s;
+		n = s.size();
+		for (int i = 1; i < n; i++) {
+			cin >> Graph[i];
 		}
+		for (int i = 0; i < n; i++)
+			possible[i] = 0;
+
+		floyd_warshall();
+
+		int ans = 0, ind = 0;
+		for (int i = 0; i < n; i++) {
+			if (possible[i] > ans) {
+				ind = i;
+				ans = possible[i];
+			}
+		}
+		cout << ind << " " << ans << endl;
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
 
 	return ;
 }
@@ -97,8 +79,8 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; while (t--)
+		solve();
 
 	return 0;
 }

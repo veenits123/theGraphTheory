@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -17,66 +16,57 @@ using namespace std;
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
-int n, m;
+const int N = 1e2 + 5;
+vector <int> Graph[N];
+vector <int> vis, act;
+int n;
+vector <string> s;
+string ans;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
-			}
+typedef vector<int> vi;
+typedef vector<string> vs;
+
+void dfs(int src) {
+	vis[src] = 1;
+	act[src] = 1;
+	for (auto to : Graph[src]) {
+		if (act[to]) {
+			cout << "Impossible";
+			exit(0);
 		}
+		if (!vis[to])
+			dfs(to);
 	}
-}
-
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
+	ans += src + 'a';
+	act[src] = 0;
 }
 
 void solve() {
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
+	vis = vi(N, 0);
+	act = vi(N, 0);
+	s = vs(N, "");
+	ans = "";
+
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		cin >> s[i];
+		if (i > 0) {
+			int ptr = 0;
+			while (ptr < s[i].size() && ptr < s[i - 1].size() && s[i][ptr] == s[i - 1][ptr])
+				ptr++;
+			if (s[i].size() == ptr) {
+				cout << "Impossible" << endl;
+				return ;
 			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
+			if (ptr < s[i - 1].size())
+				Graph[s[i][ptr] - 'a'].pb(s[i - 1][ptr] - 'a');
 		}
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
+	for (int i = 0; i < 26; i++) {
+		if (!vis[i])
+			dfs(i);
+	}
+	cout << ans << endl;
 
 	return ;
 }

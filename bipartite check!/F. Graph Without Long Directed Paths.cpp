@@ -1,82 +1,95 @@
 #include <iostream>
 #include <vector>
+#include <map>
+#include <cmath>
+#include <queue>
 #include <algorithm>
+#include <iomanip>
+#include <set>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-#define int long long int
+#define int long long
 #define ld long double
 #define F first
 #define S second
-#define P pair<int,int>
+#define P pair <int,int>
+#define vi vector <int>
+#define vs vector <string>
+#define vb vector <bool>
+#define all(x) x.begin(),x.end()
+#define FOR(a,b) for(int i=a;i<b;i++)
+#define REP(a,b) for(int i=a;i<=b;i++)
+#define sp(x,y) fixed<<setprecision(y)<<x
 #define pb push_back
+#define mod 1e9+7
 #define endl '\n'
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 1e4 + 5;
-const int inf = 1e9;
-int dis[N][N];
-int par[N][N];
+const int N = 2e5 + 5;
+vector <int> Graph[N];
+vector <int> vis;
+vector <int> color;
+vector <P> edge;
 int n, m;
+bool flag;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-					par[i][j] = par[i][k];
-				}
+void bfs(int src, int col) {
+	queue <int> q;
+	q.push(src);
+	vis[src] = 1;
+	color[src] = 1;
+	while (!q.empty()) {
+		int temp = q.front();
+		q.pop();
+		for (auto to : Graph[temp]) {
+			if (!vis[to]) {
+				q.push(to);
+				vis[to] = 1;
+				color[to] = color[temp] ^ 1;
+			}
+			else {
+				if (color[temp] == color[to])
+					flag = false;
 			}
 		}
 	}
 }
 
-void shortest_path(int u, int v) {
-	if (!par[u][v]) {
-		cout << "No Path";
-		return ;
-	}
-	vector <int> path;
-	path.pb(u);
-	while (u != v) {
-		u = par[u][v];
-		path.pb(u);
-	}
-	for (auto x : path)
-		cout << x << " ";
-	cout << endl;
-	return ;
-}
+typedef vector <int> vii;
 
 void solve() {
+
+	color = vii(N, -1);
+	vis = vii(N, 0);
+	flag = true;
+
 	cin >> n >> m;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		par[u][v] = v;
-		//dis[v][u] = w;
+	for (int i = 0; i < m; i++) {
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
+		Graph[v].pb(u);
+		edge.pb({u, v});
 	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-				par[i][j] = i;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
-		}
+	bfs(1, 1);
+	if (!flag) {
+		cout << "NO" << endl;
+		return ;
 	}
-	floyd_warshall();
-	// for (int i = 1; i <= n; i++) {
-	// 	cout << dis[1][i] << " ";
-	// }
-	shortest_path(1, 2);
+
+	cout << "YES" << endl;
+	string ans = "";
+	for (int i = 0; i < m; i++) {
+		if (color[edge[i].F] > color[edge[i].S])
+			ans += '1';
+		else
+			ans += '0';
+	}
+	cout << ans << endl;
 
 	return ;
 }

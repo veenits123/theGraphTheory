@@ -54,8 +54,8 @@ int bfs(int x1, int y1, int x2, int y2) {
       }
     }
   }
+  return -1;
 }
-
 
 int32_t main() {
 

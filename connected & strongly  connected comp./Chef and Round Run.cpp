@@ -1,67 +1,106 @@
 #include <iostream>
 #include <vector>
+#include <map>
+#include <cmath>
+#include <queue>
+#include <algorithm>
+#include <iomanip>
+#include <set>
 #include <cstring>
 using namespace std;
 
-/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
-	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
+/*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 #define int long long int
 #define ld long double
 #define F first
 #define S second
-#define P pair<int,int>
+#define P pair <int,int>
+#define vi vector <int>
+#define vs vector <string>
+#define vb vector <bool>
+#define all(x) x.begin(),x.end()
+#define sz(x) (int)x.size()
+#define REP(i,a,b) for(int i=(int)a;i<=(int)b;i++)
+#define REV(i,a,b) for(int i=(int)a;i>=(int)b;i--)
+#define sp(x,y) fixed<<setprecision(y)<<x
 #define pb push_back
 #define endl '\n'
+const int mod = 1e9 + 7;
 
-/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
-	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
+/*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e6 + 5;
-vector <int> Graph[N];
-int vis[N];
-vector <int> comp;
-int ans;
+const int N = 1e5 + 5;
+vi Graph[N], transpose[N];
+vi vis(N);
+int a[N];
+vi order, comp;
 int n;
 
-void dfs(int src) {
+void dfs1(int src) {
+	vis[src] = 1;
+	for (auto to : Graph[src])
+		if (!vis[to])
+			dfs1(to);
+	order.pb(src);
+}
+
+void dfs2(int src) {
+	vis[src] = 1;
 	comp.pb(src);
-	vis[src]++;
-	if (vis[src] == 2)
-		ans++;
-	for (auto to : Graph[src]) {
-		if (vis[to] < 2) {
-			dfs(to);
-		}
-	}
+	for (auto to : transpose[src])
+		if (!vis[to])
+			dfs2(to);
 }
 
 void solve() {
+
+	order.clear();
+	vis.assign(n + 1, 0);
+
 	cin >> n;
-	int a[n + 1];
 
-	ans = 0;
-	//memset(vis, 0, sizeof(vis));
-	//memset(Graph, 0, sizeof(Graph));
-
-	for (int i = 1; i <= n; i++) {
-
-		vis[i] = 0;
+	REP(i, 0, n - 1) {
+		//vis[i] = 0;
 		Graph[i].clear();
+		transpose[i].clear();
 
 		cin >> a[i];
-		Graph[i].pb((i + a[i]) % n + 1);
 	}
-	for (int i = 1; i <= n; i++) {
-		if (!vis[i]) {
-			dfs(i);
-			for (int to = 0; to < comp.size(); to++) {
-				if (vis[comp[to]] == 1) {
-					vis[comp[to]] = 2;
-				}
-			}
+	REP(i, 0, n - 1) {
+		int u = i;
+		int v = (i + a[i] + 1) % n;
+		Graph[u].pb(v);
+		transpose[v].pb(u);
+	}
+
+	REP(i, 0, n - 1) {
+		if (!vis[i])
+			dfs1(i);
+		// for (auto x : Graph[i])
+		// 	cout << x << " ";
+		// cout << endl;
+	}
+	reverse(all(order));
+
+	// for (auto x : order)
+	// 	cout << x << " ";
+	// cout << endl;
+
+	// REP(i, 0, n)
+	// vis[i] = 0;
+	vis.assign(n + 1, 0);
+
+	int ans = 0;
+	for (auto x : order) {
+		if (!vis[x]) {
 			comp.clear();
+			dfs2(x);
+			if (sz(comp) == 1 && comp[0] != Graph[comp[0]][0])
+				continue;
+			ans += sz(comp);
 		}
+
 	}
 	cout << ans << endl;
 

@@ -1,64 +1,77 @@
 #include <iostream>
+#include <vector>
+#include <map>
+#include <cmath>
+#include <queue>
+#include <algorithm>
+#include <iomanip>
+#include <set>
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-#define int long long int
+#define int long long
 #define ld long double
 #define F first
 #define S second
-#define P pair<int,int>
+#define P pair <int,int>
+#define vi vector <int>
+#define vs vector <string>
+#define vb vector <bool>
+#define all(x) x.begin(),x.end()
+#define REP(i,a,b) for(int i=(int)a;i<=(int)b;i++)
+#define REV(i,a,b) for(int i=(int)a;i>=(int)b;i--)
+#define sp(x,y) fixed<<setprecision(y)<<x
 #define pb push_back
+#define mod (int)1e9+7
 #define endl '\n'
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-const int N = 5e2 + 5;
-const int inf = 1e18;
-int dis[N][N];
-int n, m;
-int q;
+const int N = 1e6 + 5;
+vi Graph[N];
+vi vis(N);
+vi dis(N);
+int f, s, g, u, d;
 
-void floyd_warshall() {
-	for (int k = 1; k <= n; k++) {//for generating n matrices;
-		//matrices;
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++) {
-				if (dis[i][j] > dis[i][k] + dis[k][j]) {
-					dis[i][j] = dis[i][k] + dis[k][j];
-				}
+int bfs(int src, int des) {
+	queue <int> q;
+	q.push(src);
+	vis[src] = 1;
+	dis[src] = 0;
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		if (cur == des) {
+			return dis[cur];
+		}
+		for (int to : Graph[cur]) {
+			if (!vis[to]) {
+				vis[to] = 1;
+				q.push(to);
+				dis[to] = dis[cur] + 1;
 			}
 		}
 	}
+	return -1;
 }
 
 void solve() {
-	cin >> n >> m >> q;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w; cin >> u >> v >> w;
-		dis[u][v] = w;
-		dis[v][u] = w;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (i == j) {
-				dis[i][j] = 0;
-			}
-			else if (!dis[i][j])
-				dis[i][j] = inf;
-		}
-	}
-	floyd_warshall();
 
-	while (q--) {
-		int u, v; cin >> u >> v;
-		if (dis[u][v] == inf)
-			cout << -1 << endl;
-		else
-			cout << dis[u][v] << endl;
+	cin >> f >> s >> g >> u >> d;
+	for (int i = 1; i + u <= f; i++) {
+		Graph[i].pb(i + u);
 	}
+	for (int i = f; i - d >= 1; i--) {
+		Graph[i].pb(i - d);
+	}
+	int ans = bfs(s, g);
+	if (ans == -1)
+		cout << "use the stairs";
+	else
+		cout << ans;
 
 	return ;
 }

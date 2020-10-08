@@ -1,111 +1,110 @@
 #include <iostream>
 #include <vector>
-#include <cstring>
+#include <map>
+#include <cmath>
+#include <queue>
 #include <algorithm>
+#include <iomanip>
+#include <set>
 using namespace std;
 
-/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
-	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
+/*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 #define int long long int
 #define ld long double
 #define F first
 #define S second
-#define P pair<int,int>
+#define P pair <int,int>
+#define vi vector <int>
+#define vs vector <string>
+#define vb vector <bool>
+#define all(x) x.begin(),x.end()
+#define sz(x) (int)x.size()
+#define REP(i,a,b) for(int i=(int)a;i<=(int)b;i++)
+#define REV(i,a,b) for(int i=(int)a;i>=(int)b;i--)
+#define sp(x,y) fixed<<setprecision(y)<<x
 #define pb push_back
 #define endl '\n'
+const int mod = 1e9 + 7;
 
-/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
-	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
+/*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vector <int> Graph[N];
-vector <int> transpose[N];
-int comp[N];
-int vis[N];
-int indeg[N];
-vector <int> out;
+vi Graph[N], transpose[N];
+vb vis(N);
+vi comp(N);
+vi order;
+vi indegree(N);
 int n, m;
 
 void dfs1(int src) {
-	vis[src] = 1;
-	//cout<<src<<" ";
-	for (auto to : Graph[src]) {
-		if (!vis[to]) {
+	vis[src] = true;
+	for (int to : Graph[src])
+		if (!vis[to])
 			dfs1(to);
-		}
-	}
-	out.pb(src);
+	order.pb(src);
 }
 
 void dfs2(int src, int cnt) {
+	vis[src]=true;
 	comp[src] = cnt;
-	for (auto to : transpose[src]) {
-		if (!comp[to]) {
-			comp[to] = cnt;
+	for (int to : transpose[src])
+		if (!vis[to])
 			dfs2(to, cnt);
-		}
-	}
-}
-
-void in_degree() {
-	for (int i = 1; i <= n; i++) {
-		for (auto to : Graph[i]) {
-			if (comp[i] != comp[to]) {
-				indeg[comp[to]]++;
-			}
-		}
-	}
 }
 
 void solve() {
+
+	vis.assign(N, false);
+	indegree.assign(N, 0);
+	comp.assign(N, 0);
+	order.clear();
+
 	cin >> n >> m;
 	while (m--) {
 		int u, v; cin >> u >> v;
-		Graph[v].pb(u);
-		transpose[u].pb(v);
+		Graph[u].pb(v);
+		transpose[v].pb(u);
 	}
-	for (int i = 1; i <= n; i++) {
-		if (!vis[i]) {
-			dfs1(i);
-		}
-	}
-	reverse(out.begin(), out.end());
+	REP(i, 1, n)
+	if (!vis[i])
+		dfs1(i);
+	reverse(all(order));
 
-	int cc = 1;
-	for (auto x : out) {
-		if (!comp[x]) {
-			dfs2(x, cc);
-			cc++;
-		}
-	}
-	in_degree();
+	vis.assign(N, false);
 
-	int nodes = 0, par;
-	for (int i = 1; i <= cc - 1; i++) {
-		if (!indeg[i]) {
-			nodes++;
-			par = i;
-		}
-	}
-	if (nodes == 1) {
-		int cnt = 0;
-		vector <int> ans;
-		for (int i = 1; i <= n; i++) {
-			if (comp[i] == par) {
-				ans.pb(i);
-				cnt++;
+	int cnt = 1;
+	for (int x : order)
+		if (!vis[x])
+			dfs2(x, cnt), cnt++;
+
+	REP(i, 1, n) {
+		for (int to : Graph[i]) {
+			if (comp[i] != comp[to]) {
+				indegree[comp[i]]++;
 			}
 		}
-		cout << cnt << endl;
-		sort(ans.begin(), ans.end());
-		for (auto x : ans)
-			cout << x << " ";
-		cout << endl;
 	}
-	else {
+
+	int flag = 0, root = -1;
+	REP(i, 1, cnt - 1)
+	if (!indegree[i])
+		flag++, root = i;
+
+	if (flag != 1) {
 		cout << 0 << endl;
+		return ;
 	}
+
+	vi ans;
+	REP(i, 1, n) {
+		if (comp[i] == root) {
+			ans.pb(i);
+		}
+	}
+	cout << ans.size() << endl;
+	for (int x : ans)
+		cout << x << " ";
 
 	return ;
 }

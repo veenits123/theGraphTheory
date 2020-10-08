@@ -22,20 +22,20 @@ const int N = 1e5 + 5;
 vector <int> Graph[N];
 vector <int> transpose[N];
 int vis[N];
-vector <int> out;
+vector <int> order;
 vector <int> component;
 int n, m;
 
 void dfs1(int src) {
 	vis[src] = 1;
-	//cout<<src<<" ";
+	//corder<<src<<" ";
 	for (auto to : Graph[src]) {
 		if (!vis[to]) {
 			vis[to] = 1;
 			dfs1(to);
 		}
 	}
-	out.pb(src);
+	order.pb(src);
 }
 
 void dfs2(int src) {
@@ -60,16 +60,17 @@ void solve() {
 			dfs1(i);
 		}
 	}
-	// for (auto x : out)
-	// 	cout << x << " ";
-	// cout << endl;
 
-	reverse(out.begin(), out.end());
+	reverse(order.begin(), order.end());
+
+	for (auto x : order)
+		cout << x << " ";
+	cout << endl;
 
 	memset(vis, 0, sizeof(vis));
 
 	for (int i = 0; i < n; i++) {
-		int cur = out[i];
+		int cur = order[i];
 		if (!vis[cur]) {
 			dfs2(cur);
 

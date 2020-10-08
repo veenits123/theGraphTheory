@@ -33,19 +33,22 @@ void dfs(int src) {
 void connected_comp() {
 	vector <vector<int>> v;
 	for (int i = 1; i <= n; i++) {
-		components.clear();
-		if (!vis[i]) {
-			dfs(i);
-			v.pb(components);
-		}
+		//components.clear();
+		//if (!vis[i]) {
+		dfs(i);
+		v.pb(components);
+		//}
 	}
-	cout << v.size() << endl;
-	// for (auto x : v) {
-	// 	for (auto to : x) {
-	// 		cout << to << " ";
-	// 	}
-	// 	cout << endl;
-	// }
+	int ans = 1e3;
+	//cout << v.size() << endl;
+	for (auto x : v) {
+		ans = min(ans, (int)x.size());
+		// for (auto to : x) {
+		// 	cout << to << " ";
+		// }
+		// 	cout << endl;
+	}
+	cout << ans;
 }
 
 int32_t main() {
@@ -60,14 +63,19 @@ int32_t main() {
 
 	// code starts
 
-	cin >> n >> m; //n=nodes, m=edges;
-	while (m--) {
+	//cin >> n >> m; //n=nodes, m=edges;
+	cin >> n;
+	int x = n - 1;
+	while (x--) {
 		int x, y; cin >> x >> y;
 		Graph[x].pb(y);
 		Graph[y].pb(x);
 	}
-	//dfs(5);
-	connected_comp();
+	dfs(0);
+	//connected_comp();
+	for (int i = 0; i < n; i++) {
+		cout << out[i] <<" "<< entry[i] << endl;
+	}
 
 	return 0;
 }

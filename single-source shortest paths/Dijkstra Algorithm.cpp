@@ -35,9 +35,9 @@ void dijsktra(int src) {
 		q.pop();
 		int prev = temp.S;
 		int prev_c = temp.F;
-		// if (vis[prev])
-		// 	continue;
-		// vis[prev] = 1;
+		if (vis[prev])//important sometime otherwise gives TLE ;)
+			continue;
+		vis[prev] = 1;
 		for (auto to : Graph[prev]) {
 			int cost = to.S;
 			int cur = to.F;

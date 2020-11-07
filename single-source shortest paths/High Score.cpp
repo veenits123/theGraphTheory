@@ -29,58 +29,72 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
+const int N = 3e3 + 5;
+const int inf = 1e18;
+vector < pair<P, int> > edges;
+vi dis(N, inf);
+vi cycle(N);
+int ind;
 int n, m;
 
-#define node pair<int,P>
-vector <node> edges;
-
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+void bellman() {
+	dis[1] = 0;
+	REP(i, 1, n - 1) {
+		for (auto x : edges) {
+			int from = x.F.F;
+			int to = x.F.S;
+			int cost = x.S;
+			if (dis[from] < inf) {
+				if (dis[to] > dis[from] + cost) {
+					dis[to] = dis[from] + cost;
+				}
+			}
+		}
 	}
+	for (auto x : edges) {
+		int from = x.F.F;
+		int to = x.F.S;
+		int cost = x.S;
+		if (dis[from] < inf) {
+			if (dis[to] > dis[from] + cost) {
+				cycle[to] = 1;
+			}
+		}
+	}
+	REP(i, 1, n - 1) {
+		for (auto x : edges) {
+			int from = x.F.F;
+			int to = x.F.S;
+			int cost = x.S;
+			if (cycle[from] == 1) {
+				cycle[to] = 1;
+			}
+		}
+	}
+}
+
+int ans(int x) {
+	if (cycle[x])
+		return -1;
+	return -dis[x];
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
+	dis = vi(N, inf);
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
-		}
+	cin >> n >> m;
+	REP(i, 1, m) {
+		int u, v, w; cin >> u >> v >> w;
+		edges.pb({{u, v}, -w});
 	}
+	ind = -1;
+	bellman();
+	//cout << ind << endl;
+
 	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	// cout << dis[i] << " ";
+	cout << ans(n);
 
 	return ;
 }
@@ -100,8 +114,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

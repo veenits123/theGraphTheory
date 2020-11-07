@@ -29,16 +29,15 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
+const int N = 5e4 + 5;
 vi parent(N);
-int sum;
 int n, m;
 
 #define node pair<int,P>
 vector <node> edges;
 
 void init() {
-	REP(i, 0, N)
+	REP(i, 1, N)
 	parent[i] = i;
 }
 
@@ -60,27 +59,31 @@ void unite(int a, int b) {
 
 void solve() {
 
+	init();
+	edges.clear();
+
 	cin >> n >> m;
 	while (m--) {
 		int u, v, w; cin >> u >> v >> w;
 		edges.pb({w, {u, v}});
 	}
 	sort(all(edges));
+	reverse(all(edges));//maximal spanning tree;
 
 	for (auto x : edges) {
 		int u = x.S.F;
 		int v = x.S.S;
 		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+		if (find(u) != find(v)) {
+			//cout << w << endl;
+			unite(u, v);
+			if (find(1) == find(n)) {
+				cout << w << endl;
+				return ;
+			}
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	cout << -1 << endl;
 
 	return ;
 }
@@ -101,10 +104,8 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; while (t--)
+		solve();
 
 	return 0;
 }

@@ -30,57 +30,93 @@ const int mod = 1e9 + 7;
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+vi Graph[N];
+vi euler_tour;
+vb vis(N);
+vi tree(4 * N);
+vi level(N);
+vi occur(N);
+int n;
 
-#define node pair<int,P>
-vector <node> edges;
+void dfs(int src, int h) {
+	vis[src] = true;
+	euler_tour.pb(src);
+	level[src] = h;
+	occur[src] = sz(euler_tour) - 1;
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	for (int to : Graph[src]) {
+		if (!vis[to]) {
+			dfs(to, h + 1);
+			euler_tour.pb(src);
+		}
 	}
+}
+
+void build(int pos, int st, int en) {
+	if (st == en) {
+		tree[pos] = euler_tour[st];
+		return ;
+	}
+	int mid = (st + en) >> 1;
+
+	build(pos << 1, st, mid);
+	build(pos << 1 | 1, mid + 1, en);
+
+	int left = tree[pos << 1];
+	int right = tree[pos << 1 | 1];
+
+	tree[pos] = (level[left] < level[right]) ? left : right;
+}
+
+int query(int pos, int st, int en, int l, int r) {
+	if (l > en || st > r)
+		return -1;
+	if (st >= l && en <= r)
+		return tree[pos];
+	int mid = (st + en) >> 1;
+
+	int left = query(pos << 1, st, mid, l, r);
+	int right = query(pos << 1 | 1, mid + 1, en, l, r);
+
+	if (left == -1)
+		return right;
+	if (right == -1)
+		return left;
+
+	return (level[left] < level[right] ? left : right);
+}
+
+int find_lca(int a, int b) {
+	int left = occur[a];
+	int right = occur[b];
+	if (left > right)
+		swap(left, right);
+	return query(1, 0, sz(euler_tour) - 1, left, right);
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
+	cin >> n;
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
-		}
+	euler_tour.reserve(2 * N);
+	vis = vb(N, false);
+	tree.resize(4 * N);
+	level = vi(N, 0);
+	occur.resize(N);
+
+	REP(i, 1, n - 1) {
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
+		Graph[v].pb(u);
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	dfs(1, 0);
+	build(1, 0, sz(euler_tour) - 1);
+
+	int q; cin >> q;
+	while (q--) {
+		int u, v; cin >> u >> v;
+		cout << find_lca(u, v) << endl;
+	}
 
 	return ;
 }
@@ -101,9 +137,7 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
+	//int t; cin >> t; while (t--)
 	solve();
 
 	return 0;

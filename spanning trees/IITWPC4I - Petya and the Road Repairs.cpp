@@ -29,8 +29,9 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
+const int N = 3e5 + 5;
 vi parent(N);
+int sz[N];
 int sum;
 int n, m;
 
@@ -38,8 +39,10 @@ int n, m;
 vector <node> edges;
 
 void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+	REP(i, 1, N) {
+		parent[i] = i;
+		sz[i] = 1;
+	}
 }
 
 int find(int n) {
@@ -52,35 +55,75 @@ void unite(int a, int b) {
 	int x = find(a);
 	int y = find(b);
 	if (x != y) {
-		if (x < y)
+		if (sz[x] < sz[y])
 			swap(x, y);
 		parent[y] = x;
+		sz[x] += sz[y];
+		sz[y] = 0;
 	}
 }
 
 void solve() {
 
+	edges.clear();
+	init();
+	sum = 0;
+	bool flag = true;
+
 	cin >> n >> m;
+
+	int z = 0;
+	int a[n + 1];
+	REP(i, 1, n) {
+		cin >> a[i];
+		if (a[i] == 0)
+			z++;
+	}
+	//impossible case;
+	if (z >= n)
+		flag = false;
+
+	int root = 0;
+	REP(i, 1, n) {
+		if (a[i] == 1) {
+			if (root == 0) {
+				edges.pb({0, {i, i}});
+				root = i;
+			}
+			else
+				edges.pb({0, {i, root}});
+		}
+	}
+
 	while (m--) {
 		int u, v, w; cin >> u >> v >> w;
 		edges.pb({w, {u, v}});
 	}
 	sort(all(edges));
 
+	// for (auto x : edges)
+	// 	cout << x.S.F << " " << x.S.S << " " << x.F << endl;
+
 	for (auto x : edges) {
 		int u = x.S.F;
 		int v = x.S.S;
 		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
+		if (find(u) != find(v)) {
+			unite(u, v);
 			sum += w;
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	//impossible case;
+	REP(i, 2, n) {
+		if (find(i) != find(1)) {
+			flag = false;
+			break;
+		}
+	}
+	if (flag)
+		cout << sum << endl;
+	else
+		cout << "impossible" << endl;
 
 	return ;
 }
@@ -101,10 +144,8 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; while (t--)
+		solve();
 
 	return 0;
 }

@@ -29,7 +29,7 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
+const int N = 2e5 + 5;
 vi parent(N);
 int sum;
 int n, m;
@@ -60,27 +60,36 @@ void unite(int a, int b) {
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
+	while (true) {
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+		edges.clear();
+		init();
+		sum = 0;
+
+		int n, m; cin >> n >> m;
+		if (n == 0 && m == 0)
+			return ;
+		int total = 0;
+		while (m--) {
+			int u, v, w; cin >> u >> v >> w;
+			edges.pb({w, {u, v}});
+			total += w;
 		}
+		sort(all(edges));
+
+		for (auto x : edges) {
+			int u = x.S.F;
+			int v = x.S.S;
+			int w = x.F;
+			int par_u = find(u);
+			int par_v = find(v);
+			if (par_u != par_v) {
+				unite(par_u, par_v);
+				sum += w;
+			}
+		}
+		cout << total - sum << endl;
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
 
 	return ;
 }
@@ -100,8 +109,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

@@ -30,57 +30,99 @@ const int mod = 1e9 + 7;
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+vi Graph[N];
+int level[N];
+int par[N][18];
+int n, q;
 
-#define node pair<int,P>
-vector <node> edges;
+void dfs(int src, int p, int l) {
+	level[src] = l;
+	par[src][0] = p;
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	REP(i, 1, 17) {
+		if (par[src][i - 1] != -1) {
+			par[src][i] = par[par[src][i - 1]][i - 1];
+		}
 	}
+
+	for (int to : Graph[src]) {
+		if (to != p) {
+			dfs(to, src, l + 1);
+		}
+	}
+}
+
+int lca(int a, int b) {
+	if (level[a] > level[b])
+		swap(a, b);
+	int d = level[b] - level[a];
+	while (d > 0) {
+		int i = log2(d);
+		b = par[b][i];
+		d -= (1 << i);
+	}
+	if (a == b)
+		return a;
+	REV(i, 17, 0) {
+		if (par[a][i] != -1 && par[a][i] != par[b][i]) {
+			a = par[a][i];
+			b = par[b][i];
+		}
+	}
+	return par[a][0];
+}
+
+int calc(int f, int s, int t) {
+	int fs = lca(f, s);
+	int ft = lca(f, t);
+	int st = lca(s, t);
+	int ans = 0;
+	if ((fs == f && ft != f) || (fs != f && ft == f))
+		return 1;
+	if (fs == f && ft == f) {
+		ans = max(ans, level[st] - level[f]);
+	}
+	else if (fs != f && ft != f) {
+		if (fs != ft)
+			ans = max(ans, level[f] - max(level[fs], level[ft]));
+		else
+			ans = max(ans, level[f] + level[st] - 2 * level[fs]);
+	}
+	return ans+1;
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 0, N - 1) {
+		REP(j, 0, 17) {
+			par[i][j] = -1;
 		}
+		Graph[i].clear();
+		level[i] = 0;
 	}
+
+	cin >> n >> q;
+	REP(i, 2, n) {
+		int x; cin >> x;
+		Graph[x].pb(i);
+		Graph[i].pb(x);
+	}
+	dfs(1, -1, 0);
+
+	// REP(i, 1, n) {
+	// 	for (auto x : Graph[i])
+	// 		cout << x << " ";
+	// 	cout << endl;
+	// }
+
 	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	// cout << par[i][0] << " ";
+
+	while (q--) {
+		int a, b, c; cin >> a >> b >> c;
+		int ans = max(calc(a, b, c), max(calc(b, c, a), calc(c, b, a)));
+		cout << ans << endl;
+	}
 
 	return ;
 }
@@ -100,8 +142,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

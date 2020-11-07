@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <set>
+#include <stack>
 using namespace std;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
@@ -30,57 +31,76 @@ const int mod = 1e9 + 7;
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vi parent(N);
-int sum;
+vi Graph[N];
+vb vis(N);
+int low[N], entry[N];
+int timer;
 int n, m;
+stack <int> st;
+vector <vi> comp;
 
-#define node pair<int,P>
-vector <node> edges;
+void dfs(int src) {
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
+	st.push(src);
+	vis[src] = true;
+	low[src] = entry[src] = timer++;
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
+	for (auto to : Graph[src]) {
+		if (vis[to]) {
+			low[src] = min(low[src], entry[to]);
+		}
+		else if (entry[to] == -1) {
+			dfs(to);
+			low[src] = min(low[src], low[to]);
+		}
+	}
 
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	int w = -1;
+	if (low[src] == entry[src]) {
+		vi temp;
+		while (st.top() != src) {
+			w = st.top();
+			temp.pb(w);
+			vis[w] = false;
+			st.pop();
+		}
+		w = st.top();
+		temp.pb(w);
+		vis[w] = false;
+		st.pop();
+
+		comp.pb(temp);
+		temp.clear();
 	}
 }
+
+int ans[N];
 
 void solve() {
 
+	vis.assign(N, false);
+	timer = 1;
+	fill(low, low + N, -1);
+	fill(entry, entry + N, -1);
+
 	cin >> n >> m;
 	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
 	}
-	sort(all(edges));
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 1, n) {
+		if (!vis[i]) {
+			dfs(i);
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+
+	if (sz(comp) == 1)
+		cout << "YES" << endl;
+	else {
+		cout << "NO" << endl;
+		cout << comp[0][0] << " " << comp[1][0] << endl;
+	}
 
 	return ;
 }
@@ -100,8 +120,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

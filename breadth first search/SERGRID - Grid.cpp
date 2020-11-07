@@ -29,58 +29,63 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
+const int N = 5e2 + 5;
+int Graph[N][N];
+int vis[N][N];
+int dis[N][N];
 int n, m;
 
-#define node pair<int,P>
-vector <node> edges;
+int row[] = {0, 0, 0, -1, 1};
+int col[] = {0, 1, -1, 0, 0};
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+bool is_valid(int i, int j) {
+	return (i >= 1 && j >= 1 && i <= n && j <= m);
 }
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
+void bfs(int sx, int sy, int ex, int ey) {
+	queue <pair<int, P>> q;
+	q.push({0, {sx, sy}});
 
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	dis[sx][sy] = 0;
+	vis[sx][sy] = 1;
+	while (!q.empty()) {
+		int x = q.front().S.F;
+		int y = q.front().S.S;
+		int w = q.front().F;
+		q.pop();
+		if (w > dis[x][y])
+			continue;
+		REP(i, 1, 4) {
+			int r = row[i] * Graph[x][y] + x;
+			int c = y + col[i] * Graph[x][y];
+			if (!vis[r][c] && is_valid(r, c)) {
+				vis[r][c] = 1;
+				q.push({w + 1, {r, c}});
+				dis[r][c] = w + 1;
+			}
+		}
 	}
 }
 
 void solve() {
 
 	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 1, n) {
+		REP(j, 1, m) {
+			char x; cin >> x;
+			Graph[i][j] = x - '0';
+			vis[i][j] = 0;
+			dis[i][j] = (int)1e18;
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+
+	bfs(1, 1, n, m);
+
+	if (dis[n][m] == (int)1e18) {
+		cout << -1 << endl;
+		return ;
+	}
+	cout << dis[n][m] << endl;
 
 	return ;
 }
@@ -100,8 +105,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

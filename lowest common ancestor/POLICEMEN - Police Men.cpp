@@ -29,58 +29,78 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+const int N = 1e4 + 5;
+vi Graph[N];
+int level[N];
+int par[N][17];
+int n;
 
-#define node pair<int,P>
-vector <node> edges;
+void dfs(int src, int p, int l) {
+	level[src] = l;
+	par[src][0] = p;
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	REP(i, 1, 16) {
+		if (par[src][i - 1] != -1) {
+			par[src][i] = par[par[src][i - 1]][i - 1];
+		}
 	}
+
+	for (int to : Graph[src]) {
+		if (to != p) {
+			dfs(to, src, l + 1);
+		}
+	}
+}
+
+int lca(int a, int b) {
+	if (level[a] > level[b])
+		swap(a, b);
+	int d = level[b] - level[a];
+	while (d > 0) {
+		int i = log2(d);
+		b = par[b][i];
+		d -= (1 << i);
+	}
+	if (a == b)
+		return a;
+	REV(i, 16, 0) {
+		if (par[a][i] != -1 && par[a][i] != par[b][i]) {
+			a = par[a][i];
+			b = par[b][i];
+		}
+	}
+	return par[a][0];
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 0, N - 1) {
+		REP(j, 0, 16) {
+			par[i][j] = -1;
 		}
+		Graph[i].clear();
+		level[i] = 0;
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	cin>>n;
+
+	REP(i, 1, n - 1) {
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
+		Graph[v].pb(u);
+	}
+
+	dfs(1, -1, 0);
+
+	int q; cin >> q;
+	while (q--) {
+		int a, b; cin >> a >> b;
+		int lc = lca(a, b);
+		if (level[a] >= level[b]) {
+			cout << "YES" << " " << lc << endl;
+		}
+		else
+			cout << "NO" << endl;
+	}
 
 	return ;
 }
@@ -100,8 +120,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

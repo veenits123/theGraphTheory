@@ -30,57 +30,73 @@ const int mod = 1e9 + 7;
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vi parent(N);
-int sum;
+const int inf = 1e18;
+vector < pair<P, int> > edges;
+vi dis(N, inf);
+vi par(N);
+int ind;
 int n, m;
 
-#define node pair<int,P>
-vector <node> edges;
-
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+void bellman() {
+	dis[3] = 0;
+	REP(i, 1, n) {
+		ind = -1;
+		for (int j = 0; j < m; j++) {
+			int from = edges[j].F.F;
+			int to = edges[j].F.S;
+			int cost = edges[j].S;
+			//cout << from << " " << to << " " << dis[from] << endl;
+			if (dis[from] < inf) {
+				//cout << from << " " << to << endl;
+				if (dis[to] > dis[from] + cost) {
+					dis[to] = max(-inf, dis[from] + cost);
+					par[to] = from;
+					ind = to;
+				}
+			}
+		}
+	}
 }
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+void cycle() {
+	if (ind == -1)
+		cout << "NO" << endl;
+	else {
+		int x = ind;
+		REP(i, 1, n) {
+			x = par[x];
+		}
+		vi path;
+		for (int i = x;; i = par[i]) {
+			path.pb(i);
+			if (i == x && sz(path) > 1)
+				break;
+		}
+		reverse(all(path));
+		cout << "YES" << endl;
+		for (auto x : path)
+			cout << x << " ";
+		cout << endl;
 	}
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
+	dis = vi(N, inf);
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
-		}
+	cin >> n >> m;
+	REP(i, 1, m) {
+		int u, v, w; cin >> u >> v >> w;
+		edges.pb({{u, v}, w});
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	// for (auto x : edges) {
+	// 	cout << x.F.F << " " << x.F.S << " " << x.S << endl;
+	// }
+	ind = -1;
+	bellman();
+	//REP(i, 1, n)
+	//cout << dis[i] << " ";
+	cycle();
 
 	return ;
 }
@@ -100,8 +116,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

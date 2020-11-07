@@ -30,22 +30,19 @@ const int mod = 1e9 + 7;
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
 const int N = 1e5 + 5;
-vi parent(N);
-int sum;
 int n, m;
 
-#define node pair<int,P>
+#define node pair <int,P>
 vector <node> edges;
 
+int par[N];
 void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+	REP(i, 1, N)
+	par[i] = i;
 }
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
+int find(int a) {
+	return (a == par[a] ? a : par[a] = find(par[a]));
 }
 
 void unite(int a, int b) {
@@ -54,33 +51,38 @@ void unite(int a, int b) {
 	if (x != y) {
 		if (x < y)
 			swap(x, y);
-		parent[y] = x;
+		par[y] = x;
 	}
 }
 
 void solve() {
 
+	init();
+	edges.clear();
+
 	cin >> n >> m;
 	while (m--) {
 		int u, v, w; cin >> u >> v >> w;
+		//factors of w;
+		w = __builtin_ctzll(w);
 		edges.pb({w, {u, v}});
 	}
 	sort(all(edges));
 
+	// for (auto x : edges)
+	// 	cout << x.S.F << " " << x.S.S << " " << x.F << endl;
+
+	int cost = 0;
 	for (auto x : edges) {
 		int u = x.S.F;
 		int v = x.S.S;
 		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+		if (find(u) != find(v)) {
+			unite(u, v);
+			cost += w;
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	cout << cost + 1 << endl;// '+1' bcz 1 is also a divisor;
 
 	return ;
 }
@@ -101,10 +103,8 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
-	solve();
+	int t; cin >> t; while (t--)
+		solve();
 
 	return 0;
 }

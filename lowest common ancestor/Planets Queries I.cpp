@@ -6,11 +6,12 @@
 #include <algorithm>
 #include <iomanip>
 #include <set>
+#include <cstring>
 using namespace std;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-#define int long long int
+//#define int long long int
 #define ld long double
 #define F first
 #define S second
@@ -29,63 +30,43 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
-
-#define node pair<int,P>
-vector <node> edges;
-
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
-	}
-}
+const int N = 2e5 + 5;
+int lca[N][31];
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 0, N - 1) {
+		REP(j, 0, 30) {
+			lca[i][j] = -1;
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	int n, q; cin >> n >> q;
+
+	REP(i, 1, n) {
+		int x; cin >> x;
+		lca[i][0] = x;
+	}
+	REP(j, 1, 30) {
+		REP(i, 1, n) {
+			if (lca[i][j - 1] != -1)
+				lca[i][j] = lca[lca[i][j - 1]][j - 1];
+		}
+	}
+
+	while (q--) {
+		int u, k; cin >> u >> k;
+		while (k > 0) {
+			int i = log2(k);
+			u = lca[u][i];
+			k -= (1 << i);
+		}
+		cout << u << endl;
+	}
 
 	return ;
 }
 
-int32_t main() {
+int main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
@@ -101,9 +82,6 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
 	solve();
 
 	return 0;

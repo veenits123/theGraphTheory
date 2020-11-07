@@ -6,11 +6,12 @@
 #include <algorithm>
 #include <iomanip>
 #include <set>
+#include <cstring>
 using namespace std;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-#define int long long int
+//#define int long long int
 #define ld long double
 #define F first
 #define S second
@@ -29,63 +30,83 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+const int N = 5e4 + 5;
+vi Graph[N];
+int lca[N][17];
+int level[N];
+int n;
 
-#define node pair<int,P>
-vector <node> edges;
+void dfs(int src, int par, int l = 0) {
+	level[src] = l;
+	lca[src][0] = par;
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+	REP(i, 1, 16) {
+		if (lca[src][i - 1] != -1) {
+			int p = lca[src][i - 1];
+			lca[src][i] = lca[p][i - 1];
+		}
 	}
+	for (int to : Graph[src]) {
+		if (to != par) {
+			dfs(to, src, l + 1);
+		}
+	}
+}
+
+int find_lca(int a, int b) {
+	if (level[a] > level[b])
+		swap(a, b);
+
+	int diff = level[b] - level[a];
+	while (diff > 0) {
+		int i = log2(diff);
+		b = lca[b][i];
+		diff -= (1 << i);
+	}
+	if (a == b)
+		return a;
+
+	REV(i, 16, 0) {
+		if (lca[a][i] != -1 && (lca[a][i] != lca[b][i])) {
+			a = lca[a][i];
+			b = lca[b][i];
+		}
+	}
+	return lca[a][0];
+}
+
+int dist(int a, int b) {
+	return (level[a] + level[b] - 2 * level[find_lca(a, b)]);
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	REP(i, 0, N - 1) {
+		REP(j, 0, 16) {
+			lca[i][j] = -1;
 		}
+		Graph[i].clear();
+		level[i] = 0;
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	cin >> n;
+
+	REP(i, 1, n - 1) {
+		int u, v; cin >> u >> v;
+		Graph[u].pb(v);
+		Graph[v].pb(u);
+	}
+	dfs(1, -1);
+
+	int q; cin >> q;
+	while (q--) {
+		int u, v; cin >> u >> v;
+		cout << dist(u, v) << endl;
+	}
 
 	return ;
 }
 
-int32_t main() {
+int main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
@@ -101,9 +122,6 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
 	solve();
 
 	return 0;

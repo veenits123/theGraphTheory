@@ -29,23 +29,21 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+const int N = 1e3 + 5;
+int par[N];
 
 #define node pair<int,P>
 vector <node> edges;
 
 void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+	REP(i, 1, N)
+	par[i] = i;
 }
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
+int find(int a) {
+	if (a == par[a])
+		return a;
+	return par[a] = find(par[a]);
 }
 
 void unite(int a, int b) {
@@ -54,33 +52,52 @@ void unite(int a, int b) {
 	if (x != y) {
 		if (x < y)
 			swap(x, y);
-		parent[y] = x;
+		par[y] = x;
 	}
 }
 
 void solve() {
 
-	cin >> n >> m;
+	map <int, int> sub;
+	int n; cin >> n;
+	int vis[n + 1];
+	REP(i, 1, n) {
+		int x; cin >> x;
+		vis[i] = 0;
+	}
+	int m; cin >> m;
 	while (m--) {
 		int u, v, w; cin >> u >> v >> w;
+		sub[v]++;
 		edges.pb({w, {u, v}});
+	}
+	int c = 0;
+	REP(i, 1, n) {
+		if (sub[i] == 0)
+			c++;
+		if (c > 1) {
+			cout << -1 << endl;
+			return ;
+		}
 	}
 	sort(all(edges));
 
+	// for (auto x : edges)
+	// 	cout << x.S.F << " " << x.S.S << " " << x.F << endl;
+
+	int ans = 0;
 	for (auto x : edges) {
 		int u = x.S.F;
 		int v = x.S.S;
 		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
-		}
+		if (!vis[v])
+			if (find(u) != find(v)) {
+				ans += w;
+				unite(v, u);
+				vis[v] = 1;
+			}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	cout << ans << endl;
 
 	return ;
 }

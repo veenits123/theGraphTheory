@@ -29,58 +29,71 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+const int N = 1e3 + 100;
+vi Graph[N];
+int par[N];
+int level[N];
+vb vis(N);
+int n;
 
-#define node pair<int,P>
-vector <node> edges;
-
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
-}
-
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+void dfs(int root, int p, int l) {
+	vis[root] = true;
+	l++;
+	for (auto to : Graph[root]) {
+		if (to == p)
+			continue;
+		if (!vis[to]) {
+			par[to] = root;
+			level[to] = l;
+			dfs(to, root, l);
+		}
 	}
+}
+
+int find_lca(int a, int b) {
+	if (level[a] > level[b])
+		swap(level[a], level[b]);
+
+	int diff = level[b] - level[a];
+
+	while (diff > 0) {
+		b = par[b];
+		diff--;
+	}
+	if (a == b)
+		return a;
+
+	while (par[a] != par[b]) {
+		a = par[a];
+		b = par[b];
+	}
+	return par[a];
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
+	fill(par, par + N, -1);
+	fill(level, level + N, 0);
+	fill(all(vis), false);
+	REP(i, 0, N)
+	Graph[i].clear();
 
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	cin >> n;
+	REP(i, 1, n) {
+		int x; cin >> x;
+		while (x--) {
+			int child; cin >> child;
+			Graph[i].pb(child);
+			Graph[child].pb(i);
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	dfs(1, -1, 0);
+
+	int q; cin >> q;
+	while (q--) {
+		int u, v; cin >> u >> v;
+		cout << find_lca(u, v) << endl;
+	}
 
 	return ;
 }
@@ -101,10 +114,10 @@ int32_t main() {
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
 
-	init();
-
-	//int t;cin>>t;while(t--)
-	solve();
+	int t, tc; cin >> t; tc = t; while (t--) {
+		cout << "Case " << tc - t << ":" << endl;
+		solve();
+	}
 
 	return 0;
 }

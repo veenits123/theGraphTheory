@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <set>
+#include <cstring>
 using namespace std;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
@@ -29,58 +30,59 @@ const int mod = 1e9 + 7;
 
 /*ϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕϕ*/
 
-const int N = 1e5 + 5;
-vi parent(N);
-int sum;
-int n, m;
+const int N = 1e3 + 5;
+char Graph[N][N];
+int vis[N][N];
+int p[100005];
+int ind;
+int ans;
+int n, m, k;
 
-#define node pair<int,P>
-vector <node> edges;
+int row[] = {0, 1, -1, 0, 0};
+int col[] = {0, 0, 0, -1, 1};
 
-void init() {
-	REP(i, 0, N)
-	parent[i] = i;
+bool is_valid(int i, int j) {
+	return (i >= 1 && j >= 1 && i <= n && j <= m);
 }
 
-int find(int n) {
-	if (n == parent[n])
-		return n;
-	return parent[n] = find(parent[n]);
-}
-
-void unite(int a, int b) {
-	int x = find(a);
-	int y = find(b);
-	if (x != y) {
-		if (x < y)
-			swap(x, y);
-		parent[y] = x;
+void dfs(int x, int y) {
+	if (!is_valid(x, y))
+		return ;
+	if (vis[x][y])
+		return ;
+	if (Graph[x][y] == '*') {
+		ans++;
+		return ;
 	}
+	vis[x][y] = ind;
+	dfs(x, y + 1);
+	dfs(x, y - 1);
+	dfs(x + 1, y);
+	dfs(x - 1, y);
 }
 
 void solve() {
 
-	cin >> n >> m;
-	while (m--) {
-		int u, v, w; cin >> u >> v >> w;
-		edges.pb({w, {u, v}});
-	}
-	sort(all(edges));
-
-	for (auto x : edges) {
-		int u = x.S.F;
-		int v = x.S.S;
-		int w = x.F;
-		int par_u = find(u);
-		int par_v = find(v);
-		if (par_u != par_v) {
-			unite(par_u, par_v);
-			sum += w;
+	cin >> n >> m >> k;
+	REP(i, 1, n) {
+		REP(j, 1, m) {
+			cin >> Graph[i][j];
 		}
 	}
-	// REP(i, 1, n)
-	// cout << parent[i] << " ";
-	cout << sum << endl;
+	REP(i, 1, k) {
+		ind = i;
+		int x, y; cin >> x >> y;
+		ans = 0;
+
+		if (!vis[x][y])
+			dfs(x, y);
+		else
+			ans = p[vis[x][y]];
+
+		p[ind] = ans;
+
+		cout << ans << endl;
+	}
 
 	return ;
 }
@@ -100,8 +102,6 @@ int32_t main() {
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */
-
-	init();
 
 	//int t;cin>>t;while(t--)
 	solve();

@@ -11,6 +11,7 @@ using namespace std;
 #define P pair<int,int>
 #define pb push_back
 #define endl '\n'
+#define vi vector<int>
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */

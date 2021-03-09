@@ -1,11 +1,19 @@
+// never the same!!
 #include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <set>
+#include <algorithm>
 #include <vector>
 #include <map>
-#include <cmath>
-#include <queue>
-#include <algorithm>
 #include <iomanip>
-#include <set>
+#include <cassert>
+#include <string>
+#include <cstring>
+//#include <boost/graph/properties.hpp>
+#include <queue>
+using namespace std;
+
 using namespace std;
 
 /* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
@@ -113,10 +121,10 @@ int32_t main() {
 	ios_base:: sync_with_stdio(false);
 	cin.tie(NULL); cout.tie(NULL);
 
-#ifndef ONLINE_JUDGE
-	freopen("input.txt", "r", stdin);
-	freopen("output.txt", "w", stdout);
-#endif
+// #ifndef ONLINE_JUDGE
+// 	freopen("input.txt", "r", stdin);
+// 	freopen("output.txt", "w", stdout);
+// #endif
 
 	/* → → → → → → → → → → → → → → → → → → → → → → → → → → → →
 	→ → → → → → → → → → → → → → → → → → → → → → → → → → → → */

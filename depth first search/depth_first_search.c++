@@ -1,5 +1,15 @@
+// never the same!!
 #include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <set>
+#include <algorithm>
 #include <vector>
+#include <map>
+#include <iomanip>
+#include <cassert>
+#include <string>
+#include <cstring>
 
 using namespace std;
 
@@ -74,7 +84,7 @@ int32_t main() {
 	dfs(0);
 	//connected_comp();
 	for (int i = 0; i < n; i++) {
-		cout << out[i] <<" "<< entry[i] << endl;
+		cout << out[i] << " " << entry[i] << endl;
 	}
 
 	return 0;
